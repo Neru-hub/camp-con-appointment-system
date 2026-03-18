@@ -25,6 +25,12 @@ interface UserData {
   name: string
 }
 
+interface BookedSlot {
+  date: string
+  time: string
+  type: string
+}
+
 const TIME_SLOTS = [
   "8:00 AM",
   "8:30 AM",
@@ -69,6 +75,7 @@ export default function BookingPage() {
   const [user, setUser] = useState<UserData | null>(null)
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+  const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([])
   const [bookingData, setBookingData] = useState({
     type: "" as "guidance" | "hr" | "",
     date: "",
@@ -78,6 +85,26 @@ export default function BookingPage() {
   
   const availableDates = getAvailableDates()
 
+  // Load existing bookings to check for conflicts
+  useEffect(() => {
+    const loadBookedSlots = () => {
+      const existingAppointments = localStorage.getItem("campcon_appointments")
+      if (existingAppointments) {
+        const appointments = JSON.parse(existingAppointments)
+        // Filter for pending and confirmed appointments only (not cancelled)
+        const activeBookings = appointments
+          .filter((apt: { status: string }) => apt.status === "pending" || apt.status === "confirmed")
+          .map((apt: { date: string; time: string; type: string }) => ({
+            date: apt.date,
+            time: apt.time,
+            type: apt.type,
+          }))
+        setBookedSlots(activeBookings)
+      }
+    }
+    loadBookedSlots()
+  }, [])
+
   useEffect(() => {
     const userData = localStorage.getItem("campcon_user")
     if (!userData) {
@@ -86,6 +113,16 @@ export default function BookingPage() {
     }
     setUser(JSON.parse(userData))
   }, [router])
+  
+  // Check if a time slot is already booked for the selected date and type
+  const isSlotBooked = (time: string) => {
+    return bookedSlots.some(
+      (slot) => 
+        slot.date === bookingData.date && 
+        slot.time === time && 
+        slot.type === bookingData.type
+    )
+  }
 
   const handleTypeSelect = (type: "guidance" | "hr") => {
     setBookingData({ ...bookingData, type })
@@ -105,6 +142,36 @@ export default function BookingPage() {
   const handleSubmit = () => {
     setIsLoading(true)
     
+    // Final validation: Check for conflicts one more time before booking
+    const existingAppointments = localStorage.getItem("campcon_appointments")
+    const currentAppointments = existingAppointments ? JSON.parse(existingAppointments) : []
+    
+    const hasConflict = currentAppointments.some(
+      (apt: { date: string; time: string; type: string; status: string }) =>
+        apt.date === bookingData.date &&
+        apt.time === bookingData.time &&
+        apt.type === bookingData.type &&
+        (apt.status === "pending" || apt.status === "confirmed")
+    )
+    
+    if (hasConflict) {
+      // Slot was taken while user was booking - refresh and show error
+      alert("Sorry, this time slot was just booked by someone else. Please select a different time.")
+      setBookedSlots(
+        currentAppointments
+          .filter((apt: { status: string }) => apt.status === "pending" || apt.status === "confirmed")
+          .map((apt: { date: string; time: string; type: string }) => ({
+            date: apt.date,
+            time: apt.time,
+            type: apt.type,
+          }))
+      )
+      setBookingData({ ...bookingData, time: "" })
+      setStep(3)
+      setIsLoading(false)
+      return
+    }
+    
     // Create appointment
     const newAppointment = {
       id: Date.now().toString(),
@@ -113,13 +180,20 @@ export default function BookingPage() {
       time: bookingData.time,
       reason: bookingData.reason,
       status: "pending" as const,
+      userEmail: user?.email,
+      userName: user?.name,
     }
     
     // Save to localStorage
-    const existingAppointments = localStorage.getItem("campcon_appointments")
-    const appointments = existingAppointments ? JSON.parse(existingAppointments) : []
-    appointments.push(newAppointment)
-    localStorage.setItem("campcon_appointments", JSON.stringify(appointments))
+    currentAppointments.push(newAppointment)
+    localStorage.setItem("campcon_appointments", JSON.stringify(currentAppointments))
+    
+    // Update local state to reflect the new booking
+    setBookedSlots([...bookedSlots, {
+      date: bookingData.date,
+      time: bookingData.time,
+      type: bookingData.type,
+    }])
     
     // Show success and redirect
     setTimeout(() => {
@@ -335,20 +409,45 @@ export default function BookingPage() {
                   <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                     {TIME_SLOTS.map((time) => {
                       const isSelected = bookingData.time === time
+                      const isBooked = isSlotBooked(time)
                       return (
                         <button
                           key={time}
-                          onClick={() => handleTimeSelect(time)}
-                          className={`rounded-lg border-2 px-3 py-3 text-sm font-medium transition-all hover:border-primary ${
-                            isSelected
+                          onClick={() => !isBooked && handleTimeSelect(time)}
+                          disabled={isBooked}
+                          className={`relative rounded-lg border-2 px-3 py-3 text-sm font-medium transition-all ${
+                            isBooked
+                              ? "cursor-not-allowed border-border/50 bg-muted/30 text-muted-foreground line-through opacity-60"
+                              : isSelected
                               ? "border-primary bg-primary/10 text-primary"
-                              : "border-border bg-card text-foreground hover:bg-muted/50"
+                              : "border-border bg-card text-foreground hover:border-primary hover:bg-muted/50"
                           }`}
                         >
                           {time}
+                          {isBooked && (
+                            <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] text-destructive-foreground">
+                              X
+                            </span>
+                          )}
                         </button>
                       )
                     })}
+                  </div>
+                  
+                  {/* Legend for slot availability */}
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded border-2 border-border bg-card"></div>
+                      <span>Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded border-2 border-border/50 bg-muted/30 opacity-60"></div>
+                      <span>Already booked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded border-2 border-primary bg-primary/10"></div>
+                      <span>Your selection</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
