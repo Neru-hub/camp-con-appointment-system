@@ -46,10 +46,10 @@ interface AdminData {
   name: string
 }
 
-// Sample appointments for demo
+// Sample appointments for demo (using new 1-2 hour time slots)
 const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
-    id: "1",
+    id: "sample-1",
     type: "guidance",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "9:00 AM",
@@ -59,17 +59,17 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Maria Santos",
   },
   {
-    id: "2",
+    id: "sample-2",
     type: "guidance",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    time: "10:30 AM",
+    time: "10:00 AM",
     status: "pending",
     reason: "Need career guidance for college applications",
     userEmail: "student2@school.edu",
     userName: "Juan Dela Cruz",
   },
   {
-    id: "3",
+    id: "sample-3",
     type: "guidance",
     date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
     time: "2:00 PM",
@@ -79,7 +79,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Ana Reyes",
   },
   {
-    id: "4",
+    id: "sample-4",
     type: "hr",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "11:00 AM",
@@ -89,7 +89,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Prof. Garcia",
   },
   {
-    id: "5",
+    id: "sample-5",
     type: "hr",
     date: new Date(Date.now() + 259200000).toISOString().split("T")[0],
     time: "3:00 PM",
@@ -127,11 +127,23 @@ export default function AdminDashboardPage() {
   }
 
   const handleStatusChange = (appointmentId: string, newStatus: "confirmed" | "cancelled" | "completed") => {
+    // Update local state
     setAppointments((prev) =>
       prev.map((apt) =>
         apt.id === appointmentId ? { ...apt, status: newStatus } : apt
       )
     )
+    
+    // Also update localStorage so the student/faculty dashboard can see the change
+    const storedAppointments = localStorage.getItem("campcon_appointments")
+    if (storedAppointments) {
+      const userAppointments = JSON.parse(storedAppointments)
+      const updatedAppointments = userAppointments.map((apt: Appointment) =>
+        apt.id === appointmentId ? { ...apt, status: newStatus } : apt
+      )
+      localStorage.setItem("campcon_appointments", JSON.stringify(updatedAppointments))
+    }
+    
     setIsDialogOpen(false)
     setSelectedAppointment(null)
   }

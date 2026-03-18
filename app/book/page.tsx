@@ -31,23 +31,17 @@ interface BookedSlot {
   type: string
 }
 
+// Time slots with 1-2 hour intervals, excluding lunch break (11:30 AM - 1:00 PM)
 const TIME_SLOTS = [
   "8:00 AM",
-  "8:30 AM",
   "9:00 AM",
-  "9:30 AM",
   "10:00 AM",
-  "10:30 AM",
   "11:00 AM",
-  "11:30 AM",
+  // Lunch break: 11:30 AM - 1:00 PM
   "1:00 PM",
-  "1:30 PM",
   "2:00 PM",
-  "2:30 PM",
   "3:00 PM",
-  "3:30 PM",
   "4:00 PM",
-  "4:30 PM",
 ]
 
 // Generate available dates (next 14 days, excluding weekends)
@@ -402,7 +396,7 @@ export default function BookingPage() {
                     Available Time Slots
                   </CardTitle>
                   <CardDescription>
-                    Each session is approximately 30-45 minutes
+                    Each session is approximately 1-2 hours
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

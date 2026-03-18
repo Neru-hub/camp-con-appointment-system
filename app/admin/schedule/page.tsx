@@ -45,17 +45,17 @@ interface AdminData {
   name: string
 }
 
-// Time slots for the schedule grid
+// Time slots for the schedule grid (1-2 hour intervals, excluding lunch 11:30 AM - 1:00 PM)
 const TIME_SLOTS = [
-  "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM"
+  "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM",
+  // Lunch break: 11:30 AM - 1:00 PM
+  "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
 ]
 
-// Sample appointments for demo
+// Sample appointments for demo (using new 1-2 hour time slots)
 const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
-    id: "1",
+    id: "sample-1",
     type: "guidance",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "9:00 AM",
@@ -65,17 +65,17 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Maria Santos",
   },
   {
-    id: "2",
+    id: "sample-2",
     type: "guidance",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    time: "10:30 AM",
+    time: "10:00 AM",
     status: "confirmed",
     reason: "Career guidance",
     userEmail: "student2@school.edu",
     userName: "Juan Dela Cruz",
   },
   {
-    id: "3",
+    id: "sample-3",
     type: "guidance",
     date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
     time: "2:00 PM",
@@ -85,7 +85,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Ana Reyes",
   },
   {
-    id: "4",
+    id: "sample-4",
     type: "hr",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "11:00 AM",
@@ -95,7 +95,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Prof. Garcia",
   },
   {
-    id: "5",
+    id: "sample-5",
     type: "hr",
     date: new Date(Date.now() + 259200000).toISOString().split("T")[0],
     time: "3:00 PM",
