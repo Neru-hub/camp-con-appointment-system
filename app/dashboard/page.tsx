@@ -26,6 +26,8 @@ interface Appointment {
   time: string
   status: "pending" | "confirmed" | "completed" | "cancelled"
   reason?: string
+  userEmail?: string
+  userName?: string
 }
 
 interface UserData {
@@ -46,12 +48,18 @@ export default function DashboardPage() {
       router.push("/login")
       return
     }
-    setUser(JSON.parse(userData))
+    const parsedUser = JSON.parse(userData)
+    setUser(parsedUser)
 
-    // Load appointments from localStorage
+    // Load appointments from localStorage and filter by current user's email
     const storedAppointments = localStorage.getItem("campcon_appointments")
     if (storedAppointments) {
-      setAppointments(JSON.parse(storedAppointments))
+      const allAppointments = JSON.parse(storedAppointments)
+      // Filter to only show appointments belonging to this user
+      const userAppointments = allAppointments.filter(
+        (apt: Appointment) => apt.userEmail === parsedUser.email
+      )
+      setAppointments(userAppointments)
     }
   }, [router])
 
