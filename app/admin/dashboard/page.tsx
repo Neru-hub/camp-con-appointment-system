@@ -204,6 +204,12 @@ export default function AdminDashboardPage() {
                 {admin.office} Office
               </Badge>
             </div>
+            <Link href="/admin/schedule">
+              <Button variant="outline" size="sm">
+                <Calendar className="mr-2 h-4 w-4" />
+                Schedule Overview
+              </Button>
+            </Link>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
