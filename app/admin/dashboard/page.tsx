@@ -18,7 +18,10 @@ import {
   CheckCircle,
   XCircle,
   User,
-  Mail
+  Mail,
+  MapPin,
+  Phone,
+  BarChart3
 } from "lucide-react"
 import {
   Dialog,
@@ -32,6 +35,8 @@ import {
 interface Appointment {
   id: string
   type: "guidance" | "hr"
+  consultationMode?: "in-person" | "online"
+  contactNumber?: string
   date: string
   time: string
   status: "pending" | "confirmed" | "completed" | "cancelled"
@@ -51,6 +56,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-1",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "9:00 AM",
     status: "pending",
@@ -61,6 +67,8 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-2",
     type: "guidance",
+    consultationMode: "online",
+    contactNumber: "09123456789",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "10:00 AM",
     status: "pending",
@@ -71,6 +79,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-3",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
     time: "2:00 PM",
     status: "confirmed",
@@ -81,6 +90,8 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-4",
     type: "hr",
+    consultationMode: "online",
+    contactNumber: "09987654321",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "11:00 AM",
     status: "pending",
@@ -91,6 +102,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-5",
     type: "hr",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 259200000).toISOString().split("T")[0],
     time: "3:00 PM",
     status: "confirmed",
@@ -220,6 +232,12 @@ export default function AdminDashboardPage() {
               <Button variant="outline" size="sm">
                 <Calendar className="mr-2 h-4 w-4" />
                 Schedule Overview
+              </Button>
+            </Link>
+            <Link href="/admin/feedback">
+              <Button variant="outline" size="sm">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Feedback
               </Button>
             </Link>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -377,6 +395,16 @@ export default function AdminDashboardPage() {
                             <Clock className="h-3.5 w-3.5" />
                             {appointment.time}
                           </span>
+                          {appointment.consultationMode && (
+                            <span className="flex items-center gap-1">
+                              {appointment.consultationMode === "in-person" ? (
+                                <MapPin className="h-3.5 w-3.5" />
+                              ) : (
+                                <Phone className="h-3.5 w-3.5" />
+                              )}
+                              {appointment.consultationMode === "in-person" ? "In-Person" : "Online"}
+                            </span>
+                          )}
                           {appointment.userEmail && (
                             <span className="flex items-center gap-1">
                               <Mail className="h-3.5 w-3.5" />
