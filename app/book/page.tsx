@@ -78,7 +78,6 @@ export default function BookingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([])
   const [showTermsModal, setShowTermsModal] = useState(false)
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [bookingData, setBookingData] = useState({
     type: "" as "guidance" | "hr" | "",
     mode: "" as "in-person" | "online" | "",
@@ -88,7 +87,6 @@ export default function BookingPage() {
     contactNumber: "",
     agreedToTerms: false,
   })
-  const [showTermsModal, setShowTermsModal] = useState(false)
   
   const availableDates = getAvailableDates()
 
@@ -157,47 +155,6 @@ export default function BookingPage() {
   const handleTypeSelect = (type: "guidance" | "hr") => {
     setBookingData({ ...bookingData, type })
     setStep(2)
-  }
-
-  const handleDateSelect = (date: string) => {
-    setBookingData({ ...bookingData, date })
-    setStep(3)
-  }
-
-  const handleConsultationModeSelect = (mode: "in-person" | "online") => {
-    setBookingData({ ...bookingData, consultationMode: mode })
-    if (mode === "online") {
-      // Show terms agreement before proceeding to contact collection
-      setShowTermsModal(true)
-    } else {
-      // For in-person, skip terms and go to date selection
-      setStep(3)
-    }
-  }
-
-  const handleTermsAgree = () => {
-    setAgreedToTerms(true)
-    setBookingData({ ...bookingData })
-    setShowTermsModal(false)
-    setStep(3) // Move to contact number step
-  }
-
-  const validateContactNumber = (number: string) => {
-    // Philippine format: 09XX XXX XXXX (11 digits starting with 09)
-    const phoneRegex = /^09\d{9}$/
-    return phoneRegex.test(number.replace(/\s/g, ""))
-  }
-
-  const handleContactNumberChange = (value: string) => {
-    // Format as user types
-    let formatted = value.replace(/\D/g, "").slice(0, 11)
-    if (formatted.length >= 2) {
-      formatted = formatted.slice(0, 2) + " " + formatted.slice(2)
-    }
-    if (formatted.length >= 6) {
-      formatted = formatted.slice(0, 6) + " " + formatted.slice(6)
-    }
-    setBookingData({ ...bookingData, contactNumber: formatted })
   }
 
   const handleSubmit = () => {
