@@ -657,8 +657,8 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* Step 4: Confirmation */}
-          {step === 4 && (
+          {/* Step 5: Confirmation */}
+          {step === 5 && (
             <div className="space-y-6">
               <div className="text-center">
                 <h1 className="text-2xl font-semibold text-foreground">Almost there!</h1>
