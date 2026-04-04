@@ -242,10 +242,8 @@ export default function BookingPage() {
     }])
     
     // Show success and redirect
-    setTimeout(() => {
-      setStep(6)
-      setIsLoading(false)
-    }, 1500)
+    setIsLoading(false)
+    setStep(6)
   }
 
   if (!user) {
