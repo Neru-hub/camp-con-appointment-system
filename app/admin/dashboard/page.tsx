@@ -477,6 +477,34 @@ export default function AdminDashboardPage() {
                 <span className="font-medium text-foreground">{selectedAppointment.userName}</span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Service</span>
+                <span className="font-medium text-foreground">
+                  {selectedAppointment.type === "guidance" ? "Guidance Office" : "HR Office"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Mode</span>
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                  {selectedAppointment.consultationMode === "in-person" ? (
+                    <>
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <span>In-Person</span>
+                    </>
+                  ) : (
+                    <>
+                      <Phone className="h-4 w-4 text-accent" />
+                      <span>Online</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              {selectedAppointment.consultationMode === "online" && selectedAppointment.contactNumber && (
+                <div className="flex items-center justify-between border-t border-border/40 pt-3">
+                  <span className="text-muted-foreground">Contact</span>
+                  <span className="font-medium text-foreground">{selectedAppointment.contactNumber}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-border/40 pt-3">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium text-foreground">
                   {new Date(selectedAppointment.date).toLocaleDateString("en-US", {

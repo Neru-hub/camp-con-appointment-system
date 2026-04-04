@@ -18,7 +18,9 @@ import {
   ChevronRight,
   User,
   Check,
-  X
+  X,
+  MapPin,
+  Phone
 } from "lucide-react"
 import {
   Select,
@@ -31,6 +33,8 @@ import {
 interface Appointment {
   id: string
   type: "guidance" | "hr"
+  consultationMode?: "in-person" | "online"
+  contactNumber?: string
   date: string
   time: string
   status: "pending" | "confirmed" | "completed" | "cancelled"
@@ -57,6 +61,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-1",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "9:00 AM",
     status: "pending",
@@ -67,6 +72,8 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-2",
     type: "guidance",
+    consultationMode: "online",
+    contactNumber: "09123456789",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "10:00 AM",
     status: "confirmed",
@@ -77,6 +84,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-3",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
     time: "2:00 PM",
     status: "confirmed",
@@ -87,6 +95,8 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-4",
     type: "hr",
+    consultationMode: "online",
+    contactNumber: "09987654321",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "11:00 AM",
     status: "pending",
@@ -97,6 +107,7 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
     id: "sample-5",
     type: "hr",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 259200000).toISOString().split("T")[0],
     time: "3:00 PM",
     status: "confirmed",
@@ -415,6 +426,9 @@ export default function ScheduleOverviewPage() {
                                   <div className="flex items-center gap-1">
                                     <Users className="h-3 w-3 shrink-0" />
                                     <span className="truncate font-medium">{guidanceApt.userName}</span>
+                                    {guidanceApt.consultationMode === "online" && (
+                                      <Phone className="h-3 w-3 shrink-0 text-accent" title="Online" />
+                                    )}
                                   </div>
                                   <div className="mt-0.5 text-[10px] opacity-75">Guidance</div>
                                 </button>
@@ -427,6 +441,9 @@ export default function ScheduleOverviewPage() {
                                   <div className="flex items-center gap-1">
                                     <Building2 className="h-3 w-3 shrink-0" />
                                     <span className="truncate font-medium">{hrApt.userName}</span>
+                                    {hrApt.consultationMode === "online" && (
+                                      <Phone className="h-3 w-3 shrink-0 text-accent" title="Online" />
+                                    )}
                                   </div>
                                   <div className="mt-0.5 text-[10px] opacity-75">HR</div>
                                 </button>
@@ -500,6 +517,28 @@ export default function ScheduleOverviewPage() {
                     {selectedAppointment.type === "guidance" ? "Guidance Office" : "HR Office"}
                   </Badge>
                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Mode</span>
+                  <div className="flex items-center gap-2 font-medium text-foreground">
+                    {selectedAppointment.consultationMode === "in-person" ? (
+                      <>
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span>In-Person</span>
+                      </>
+                    ) : (
+                      <>
+                        <Phone className="h-4 w-4 text-accent" />
+                        <span>Online</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {selectedAppointment.consultationMode === "online" && selectedAppointment.contactNumber && (
+                  <div className="flex items-center justify-between rounded-lg bg-accent/5 p-3 -mx-6 px-6">
+                    <span className="text-muted-foreground">Contact Number</span>
+                    <span className="font-medium text-foreground">{selectedAppointment.contactNumber}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Date</span>
                   <span className="font-medium text-foreground">
