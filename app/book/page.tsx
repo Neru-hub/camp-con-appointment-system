@@ -157,6 +157,16 @@ export default function BookingPage() {
     setStep(2)
   }
 
+  const handleDateSelect = (date: string) => {
+    setBookingData({ ...bookingData, date })
+    setStep(4)
+  }
+
+  const handleTimeSelect = (time: string) => {
+    setBookingData({ ...bookingData, time })
+    setStep(5)
+  }
+
   const handleSubmit = () => {
     // Validate required fields
     if (bookingData.mode === "online" && !isValidContactNumber(bookingData.contactNumber)) {
@@ -568,8 +578,8 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* Step 3: Select Time */}
-          {step === 3 && (
+          {/* Step 4: Select Time */}
+          {step === 4 && (
             <div className="space-y-6">
               <div className="text-center">
                 <h1 className="text-2xl font-semibold text-foreground">Choose a time</h1>
@@ -770,7 +780,7 @@ export default function BookingPage() {
               </Card>
 
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep(3)} disabled={isLoading}>
+                <Button variant="outline" onClick={() => setStep(4)} disabled={isLoading}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
@@ -785,8 +795,8 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* Step 5: Success */}
-          {step === 5 && (
+          {/* Step 6: Success */}
+          {step === 6 && (
             <div className="space-y-6 text-center">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                 <CheckCircle2 className="h-10 w-10 text-primary" />
