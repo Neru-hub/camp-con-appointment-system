@@ -92,17 +92,24 @@ export default function MessagesPage() {
 
     userMessages.forEach((msg: Message) => {
       if (msg.senderEmail === user.email || msg.recipientEmail === user.email) {
-        const otherParty = msg.senderEmail === user.email ? msg.recipientType : msg.senderType
-        const convId =
-          msg.senderEmail === user.email
-            ? `${msg.recipientEmail}-${msg.recipientType}`
-            : `${msg.senderEmail}-${msg.senderType}`
+        // Determine which office this conversation is with
+        let recipientType: "guidance" | "hr" = "guidance"
+        
+        if (msg.senderEmail === user.email) {
+          // User sent this message, get the recipient type
+          recipientType = msg.recipientType
+        } else {
+          // User received this message, get sender type (which is the office)
+          recipientType = msg.senderType as "guidance" | "hr"
+        }
+
+        const convId = recipientType
 
         if (!userConversations[convId]) {
           userConversations[convId] = {
             id: convId,
-            recipientType: otherParty as "guidance" | "hr",
-            recipientName: msg.senderEmail === user.email ? msg.recipientEmail : msg.senderName,
+            recipientType: recipientType,
+            recipientName: `${recipientType.charAt(0).toUpperCase() + recipientType.slice(1)} Office`,
             lastMessage: msg.content,
             lastMessageTime: msg.timestamp,
             unreadCount: 0,
@@ -150,7 +157,7 @@ export default function MessagesPage() {
 
     setIsLoading(true)
 
-    const [recipientEmail, recipientType] = selectedConversation.split("-")
+    const recipientType = selectedConversation as "guidance" | "hr"
 
     const message: Message = {
       id: Date.now().toString(),
@@ -158,17 +165,21 @@ export default function MessagesPage() {
       senderEmail: user.email,
       senderName: user.name,
       senderType: user.type as "student" | "faculty",
-      recipientEmail: recipientEmail,
-      recipientType: recipientType as "guidance" | "hr",
+      recipientEmail: `${recipientType}-office`,
+      recipientType: recipientType,
       content: newMessage,
       timestamp: new Date().toISOString(),
       read: false,
     }
 
+    console.log("[v0] User sending message:", message)
+
     const allMessages = localStorage.getItem("campcon_messages")
     const messages = allMessages ? JSON.parse(allMessages) : []
     messages.push(message)
     localStorage.setItem("campcon_messages", JSON.stringify(messages))
+
+    console.log("[v0] Message saved, total messages:", messages.length)
 
     setNewMessage("")
     setIsLoading(false)

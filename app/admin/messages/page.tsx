@@ -86,10 +86,16 @@ export default function AdminMessagesPage() {
     const allMessages = localStorage.getItem("campcon_messages")
     const adminMessages = allMessages ? JSON.parse(allMessages) : []
 
+    console.log("[v0] Admin loading messages, office:", adminData.office, "total messages:", adminMessages.length)
+
     const adminConversations: { [key: string]: Conversation } = {}
 
     adminMessages.forEach((msg: Message) => {
-      const isForThisOffice = adminData.office === "super" || msg.recipientType === adminData.office
+      // Check if message is for this office
+      const officeIdentifier = `${adminData.office}-office`
+      const isForThisOffice = adminData.office === "super" || msg.recipientEmail === officeIdentifier
+
+      console.log("[v0] Checking message:", { officeIdentifier, msgRecipientEmail: msg.recipientEmail, isForThisOffice })
 
       if (isForThisOffice) {
         const convId = msg.senderEmail
@@ -106,7 +112,8 @@ export default function AdminMessagesPage() {
           }
         }
 
-        if (msg.recipientEmail === adminData.email && !msg.read) {
+        // Count unread messages sent to this office
+        if (msg.recipientEmail === officeIdentifier && !msg.read) {
           adminConversations[convId].unreadCount += 1
         }
 
@@ -117,22 +124,25 @@ export default function AdminMessagesPage() {
       }
     })
 
+    console.log("[v0] Admin conversations loaded:", Object.keys(adminConversations).length)
+
     setConversations(Object.values(adminConversations).sort((a, b) => 
       new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
     ))
 
     if (selectedConversation) {
+      const officeIdentifier = `${adminData.office}-office`
       const convMessages = adminMessages.filter(
         (msg: Message) =>
           msg.senderEmail === selectedConversation &&
-          (msg.recipientEmail === adminData.email || msg.senderEmail === adminData.email)
+          (msg.recipientEmail === officeIdentifier || msg.senderEmail === adminData.email)
       )
       setMessages(convMessages.sort((a: Message, b: Message) => 
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       ))
 
       convMessages.forEach((msg: Message) => {
-        if (msg.recipientEmail === adminData.email && !msg.read) {
+        if (msg.recipientEmail === officeIdentifier && !msg.read) {
           msg.read = true
         }
       })
@@ -155,12 +165,22 @@ export default function AdminMessagesPage() {
       senderEmail: admin.email,
       senderName: admin.name,
       senderType: admin.office as "guidance" | "hr",
-      recipientEmail: selectedConversation,
+      recipientEmail: userConv.userEmail,
       recipientType: userConv.userType as "student" | "faculty",
       content: newMessage,
       timestamp: new Date().toISOString(),
       read: false,
     }
+
+    const allMessages = localStorage.getItem("campcon_messages")
+    const messages = allMessages ? JSON.parse(allMessages) : []
+    messages.push(message)
+    localStorage.setItem("campcon_messages", JSON.stringify(messages))
+
+    setNewMessage("")
+    setIsLoading(false)
+    loadMessages(admin)
+  }
 
     const allMessages = localStorage.getItem("campcon_messages")
     const messages = allMessages ? JSON.parse(allMessages) : []
