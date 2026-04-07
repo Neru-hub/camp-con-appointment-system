@@ -96,11 +96,15 @@ export default function MessagesPage() {
         let recipientType: "guidance" | "hr" = "guidance"
         
         if (msg.senderEmail === user.email) {
-          // User sent this message, get the recipient type
+          // User sent this message, get the recipient type from recipientType
           recipientType = msg.recipientType
         } else {
-          // User received this message, get sender type (which is the office)
-          recipientType = msg.senderType as "guidance" | "hr"
+          // User received this message, get the office from senderType (admin who sent it)
+          if (msg.senderType === "guidance") {
+            recipientType = "guidance"
+          } else if (msg.senderType === "hr") {
+            recipientType = "hr"
+          }
         }
 
         const convId = recipientType

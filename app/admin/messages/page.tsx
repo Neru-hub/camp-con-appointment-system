@@ -89,19 +89,23 @@ export default function AdminMessagesPage() {
     const adminConversations: { [key: string]: Conversation } = {}
 
     adminMessages.forEach((msg: Message) => {
-      // Check if message is for this office
+      // Check if message is for this office or from this office
       const officeIdentifier = `${adminData.office}-office`
       const isForThisOffice = adminData.office === "super" || msg.recipientEmail === officeIdentifier
+      const isFromThisOfficeToUser = adminData.office === "super" || (msg.senderType === adminData.office && msg.recipientEmail && !msg.recipientEmail.includes("-office"))
 
-      if (isForThisOffice) {
-        const convId = msg.senderEmail
+      if (isForThisOffice || isFromThisOfficeToUser) {
+        const convId = msg.senderEmail === adminData.email ? msg.recipientEmail : msg.senderEmail
 
         if (!adminConversations[convId]) {
+          const senderName = msg.senderEmail === adminData.email ? "You" : msg.senderName
+          const senderType = msg.senderEmail === adminData.email ? msg.recipientType : msg.senderType
+          
           adminConversations[convId] = {
             id: convId,
-            userEmail: msg.senderEmail,
-            userName: msg.senderName,
-            userType: msg.senderType as "student" | "faculty",
+            userEmail: convId,
+            userName: senderName,
+            userType: senderType as "student" | "faculty",
             lastMessage: msg.content,
             lastMessageTime: msg.timestamp,
             unreadCount: 0,
@@ -120,6 +124,8 @@ export default function AdminMessagesPage() {
       }
     })
 
+    console.log("[v0] Admin office:", adminData.office, "conversations found:", Object.keys(adminConversations).length)
+
     setConversations(Object.values(adminConversations).sort((a, b) => 
       new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
     ))
@@ -128,9 +134,11 @@ export default function AdminMessagesPage() {
       const officeIdentifier = `${adminData.office}-office`
       const convMessages = adminMessages.filter(
         (msg: Message) =>
-          msg.senderEmail === selectedConversation &&
-          (msg.recipientEmail === officeIdentifier || msg.senderEmail === adminData.email)
+          (msg.senderEmail === selectedConversation || msg.recipientEmail === selectedConversation) &&
+          (msg.recipientEmail === officeIdentifier || msg.senderType === adminData.office || adminData.office === "super")
       )
+      console.log("[v0] Conversation messages loaded:", convMessages.length)
+      
       setMessages(convMessages.sort((a: Message, b: Message) => 
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       ))
