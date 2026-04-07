@@ -86,16 +86,12 @@ export default function AdminMessagesPage() {
     const allMessages = localStorage.getItem("campcon_messages")
     const adminMessages = allMessages ? JSON.parse(allMessages) : []
 
-    console.log("[v0] Admin loading messages, office:", adminData.office, "total messages:", adminMessages.length)
-
     const adminConversations: { [key: string]: Conversation } = {}
 
     adminMessages.forEach((msg: Message) => {
       // Check if message is for this office
       const officeIdentifier = `${adminData.office}-office`
       const isForThisOffice = adminData.office === "super" || msg.recipientEmail === officeIdentifier
-
-      console.log("[v0] Checking message:", { officeIdentifier, msgRecipientEmail: msg.recipientEmail, isForThisOffice })
 
       if (isForThisOffice) {
         const convId = msg.senderEmail
@@ -123,8 +119,6 @@ export default function AdminMessagesPage() {
         }
       }
     })
-
-    console.log("[v0] Admin conversations loaded:", Object.keys(adminConversations).length)
 
     setConversations(Object.values(adminConversations).sort((a, b) => 
       new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
@@ -171,16 +165,6 @@ export default function AdminMessagesPage() {
       timestamp: new Date().toISOString(),
       read: false,
     }
-
-    const allMessages = localStorage.getItem("campcon_messages")
-    const messages = allMessages ? JSON.parse(allMessages) : []
-    messages.push(message)
-    localStorage.setItem("campcon_messages", JSON.stringify(messages))
-
-    setNewMessage("")
-    setIsLoading(false)
-    loadMessages(admin)
-  }
 
     const allMessages = localStorage.getItem("campcon_messages")
     const messages = allMessages ? JSON.parse(allMessages) : []

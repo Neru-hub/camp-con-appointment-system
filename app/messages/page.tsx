@@ -172,14 +172,10 @@ export default function MessagesPage() {
       read: false,
     }
 
-    console.log("[v0] User sending message:", message)
-
     const allMessages = localStorage.getItem("campcon_messages")
     const messages = allMessages ? JSON.parse(allMessages) : []
     messages.push(message)
     localStorage.setItem("campcon_messages", JSON.stringify(messages))
-
-    console.log("[v0] Message saved, total messages:", messages.length)
 
     setNewMessage("")
     setIsLoading(false)
