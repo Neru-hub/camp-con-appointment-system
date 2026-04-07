@@ -21,7 +21,8 @@ import {
   Mail,
   MapPin,
   Phone,
-  BarChart3
+  BarChart3,
+  FileText
 } from "lucide-react"
 import {
   Dialog,
@@ -238,6 +239,12 @@ export default function AdminDashboardPage() {
               <Button variant="outline" size="sm">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 Feedback
+              </Button>
+            </Link>
+            <Link href="/admin/reports">
+              <Button variant="outline" size="sm">
+                <FileText className="mr-2 h-4 w-4" />
+                Reports
               </Button>
             </Link>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
