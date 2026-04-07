@@ -20,7 +20,8 @@ import {
   MapPin,
   Phone,
   MessageSquare,
-  CheckCircle2
+  CheckCircle2,
+  MessageCircle
 } from "lucide-react"
 
 interface Appointment {
@@ -133,6 +134,12 @@ export default function DashboardPage() {
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </Button>
+            <Link href="/messages">
+              <Button variant="outline" size="sm">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Messages
+              </Button>
+            </Link>
           </div>
         </div>
       </header>

@@ -22,7 +22,8 @@ import {
   MapPin,
   Phone,
   BarChart3,
-  FileText
+  FileText,
+  MessageCircle
 } from "lucide-react"
 import {
   Dialog,
@@ -245,6 +246,12 @@ export default function AdminDashboardPage() {
               <Button variant="outline" size="sm">
                 <FileText className="mr-2 h-4 w-4" />
                 Reports
+              </Button>
+            </Link>
+            <Link href="/admin/messages">
+              <Button variant="outline" size="sm">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Messages
               </Button>
             </Link>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
