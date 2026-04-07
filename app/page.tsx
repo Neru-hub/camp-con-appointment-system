@@ -279,9 +279,18 @@ export default function LandingPage() {
             <p className="text-center text-sm text-muted-foreground">
               Integrated Consultation Appointment System for Guidance and HR Office
             </p>
-            <p className="text-sm text-muted-foreground">
-              Academic Year 2025-2026
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                Academic Year 2025-2026
+              </p>
+              <span className="text-border">|</span>
+              <Link 
+                href="/admin/login" 
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Staff Portal
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

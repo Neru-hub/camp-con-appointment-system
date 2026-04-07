@@ -18,6 +18,8 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     email: "",
+    studentId: "",
+    program: "",
     password: "",
     confirmPassword: "",
     userType: "student",
@@ -39,6 +41,8 @@ export default function RegisterPage() {
         email: formData.email,
         type: formData.userType,
         name: `${formData.firstName} ${formData.lastName}`,
+        studentId: formData.studentId,
+        program: formData.program,
       }))
       router.push("/dashboard")
     }, 1000)
@@ -142,6 +146,60 @@ export default function RegisterPage() {
                   </Label>
                 </RadioGroup>
               </div>
+
+              {formData.userType === "student" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="studentId">Student ID</Label>
+                    <Input
+                      id="studentId"
+                      placeholder="2024-00001"
+                      value={formData.studentId}
+                      onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                      required
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="program">Program/Year</Label>
+                    <Input
+                      id="program"
+                      placeholder="BS Computer Science - 3rd Year"
+                      value={formData.program}
+                      onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                      required
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.userType === "faculty" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="studentId">Employee ID</Label>
+                    <Input
+                      id="studentId"
+                      placeholder="EMP-2024-001"
+                      value={formData.studentId}
+                      onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                      required
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="program">Department</Label>
+                    <Input
+                      id="program"
+                      placeholder="Computer Science Department"
+                      value={formData.program}
+                      onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                      required
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>

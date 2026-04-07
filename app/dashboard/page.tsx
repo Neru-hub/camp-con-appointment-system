@@ -16,16 +16,31 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarX,
-  ChevronRight
+  ChevronRight,
+  MapPin,
+  Phone,
+  MessageSquare,
+  CheckCircle2,
+  MessageCircle
 } from "lucide-react"
 
 interface Appointment {
   id: string
   type: "guidance" | "hr"
+  consultationMode?: "in-person" | "online"
+  contactNumber?: string
   date: string
   time: string
   status: "pending" | "confirmed" | "completed" | "cancelled"
   reason?: string
+  userEmail?: string
+  userName?: string
+  feedback?: {
+    rating: number
+    comments: string
+    recommendation: boolean
+    submittedAt: string
+  } | null
 }
 
 interface UserData {
@@ -46,12 +61,18 @@ export default function DashboardPage() {
       router.push("/login")
       return
     }
-    setUser(JSON.parse(userData))
+    const parsedUser = JSON.parse(userData)
+    setUser(parsedUser)
 
-    // Load appointments from localStorage
+    // Load appointments from localStorage and filter by current user's email
     const storedAppointments = localStorage.getItem("campcon_appointments")
     if (storedAppointments) {
-      setAppointments(JSON.parse(storedAppointments))
+      const allAppointments = JSON.parse(storedAppointments)
+      // Filter to only show appointments belonging to this user
+      const userAppointments = allAppointments.filter(
+        (apt: Appointment) => apt.userEmail === parsedUser.email
+      )
+      setAppointments(userAppointments)
     }
   }, [router])
 
@@ -113,6 +134,12 @@ export default function DashboardPage() {
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </Button>
+            <Link href="/messages">
+              <Button variant="outline" size="sm">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Messages
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -234,7 +261,7 @@ export default function DashboardPage() {
                           </h4>
                           {getStatusBadge(appointment.status)}
                         </div>
-                        <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+                        <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
                             {new Date(appointment.date).toLocaleDateString("en-US", {
@@ -247,7 +274,33 @@ export default function DashboardPage() {
                             <Clock className="h-3.5 w-3.5" />
                             {appointment.time}
                           </span>
+                          {appointment.consultationMode && (
+                            <span className="flex items-center gap-1">
+                              {appointment.consultationMode === "in-person" ? (
+                                <MapPin className="h-3.5 w-3.5" />
+                              ) : (
+                                <Phone className="h-3.5 w-3.5" />
+                              )}
+                              {appointment.consultationMode === "in-person" ? "In-Person" : "Online"}
+                            </span>
+                          )}
                         </div>
+                        {appointment.status === "completed" && !appointment.feedback && (
+                          <div className="mt-2">
+                            <Link href={`/feedback?appointmentId=${appointment.id}`}>
+                              <Button size="sm" variant="outline" className="text-xs h-7">
+                                <MessageSquare className="mr-1 h-3 w-3" />
+                                Share Feedback
+                              </Button>
+                            </Link>
+                          </div>
+                        )}
+                        {appointment.feedback && (
+                          <div className="mt-2 flex items-center gap-1 text-xs text-primary">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Feedback submitted
+                          </div>
+                        )}
                       </div>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />

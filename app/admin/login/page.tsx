@@ -31,7 +31,12 @@ export default function AdminLoginPage() {
         office: formData.office,
         name: formData.email.split("@")[0],
       }))
-      router.push("/admin/dashboard")
+      // Super admin goes to schedule overview, others go to their dashboard
+      if (formData.office === "super") {
+        router.push("/admin/schedule")
+      } else {
+        router.push("/admin/dashboard")
+      }
     }, 1000)
   }
 
@@ -103,33 +108,53 @@ export default function AdminLoginPage() {
               </div>
 
               <div className="space-y-3">
-                <Label>Office</Label>
+                <Label>Office / Role</Label>
                 <RadioGroup
                   value={formData.office}
                   onValueChange={(value) => setFormData({ ...formData, office: value })}
-                  className="grid grid-cols-2 gap-3"
+                  className="grid gap-3"
                 >
                   <Label
                     htmlFor="admin-guidance"
-                    className={`flex cursor-pointer items-center justify-center rounded-lg border-2 p-4 transition-all ${
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-all ${
                       formData.office === "guidance"
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                     }`}
                   >
-                    <RadioGroupItem value="guidance" id="admin-guidance" className="sr-only" />
-                    <span className="font-medium">Guidance</span>
+                    <RadioGroupItem value="guidance" id="admin-guidance" />
+                    <div>
+                      <span className="font-medium">Guidance Moderator</span>
+                      <p className="text-xs text-muted-foreground">Manage student consultations</p>
+                    </div>
                   </Label>
                   <Label
                     htmlFor="admin-hr"
-                    className={`flex cursor-pointer items-center justify-center rounded-lg border-2 p-4 transition-all ${
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-all ${
                       formData.office === "hr"
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                     }`}
                   >
-                    <RadioGroupItem value="hr" id="admin-hr" className="sr-only" />
-                    <span className="font-medium">HR Office</span>
+                    <RadioGroupItem value="hr" id="admin-hr" />
+                    <div>
+                      <span className="font-medium">HR Head</span>
+                      <p className="text-xs text-muted-foreground">Manage faculty/staff consultations</p>
+                    </div>
+                  </Label>
+                  <Label
+                    htmlFor="admin-super"
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-all ${
+                      formData.office === "super"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <RadioGroupItem value="super" id="admin-super" />
+                    <div>
+                      <span className="font-medium">Super Admin</span>
+                      <p className="text-xs text-muted-foreground">View all departments schedule overview</p>
+                    </div>
                   </Label>
                 </RadioGroup>
               </div>

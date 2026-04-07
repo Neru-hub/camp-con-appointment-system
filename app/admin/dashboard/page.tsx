@@ -18,7 +18,12 @@ import {
   CheckCircle,
   XCircle,
   User,
-  Mail
+  Mail,
+  MapPin,
+  Phone,
+  BarChart3,
+  FileText,
+  MessageCircle
 } from "lucide-react"
 import {
   Dialog,
@@ -32,6 +37,8 @@ import {
 interface Appointment {
   id: string
   type: "guidance" | "hr"
+  consultationMode?: "in-person" | "online"
+  contactNumber?: string
   date: string
   time: string
   status: "pending" | "confirmed" | "completed" | "cancelled"
@@ -46,11 +53,12 @@ interface AdminData {
   name: string
 }
 
-// Sample appointments for demo
+// Sample appointments for demo (using new 1-2 hour time slots)
 const SAMPLE_APPOINTMENTS: Appointment[] = [
   {
-    id: "1",
+    id: "sample-1",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "9:00 AM",
     status: "pending",
@@ -59,18 +67,21 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Maria Santos",
   },
   {
-    id: "2",
+    id: "sample-2",
     type: "guidance",
+    consultationMode: "online",
+    contactNumber: "09123456789",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    time: "10:30 AM",
+    time: "10:00 AM",
     status: "pending",
     reason: "Need career guidance for college applications",
     userEmail: "student2@school.edu",
     userName: "Juan Dela Cruz",
   },
   {
-    id: "3",
+    id: "sample-3",
     type: "guidance",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
     time: "2:00 PM",
     status: "confirmed",
@@ -79,8 +90,10 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Ana Reyes",
   },
   {
-    id: "4",
+    id: "sample-4",
     type: "hr",
+    consultationMode: "online",
+    contactNumber: "09987654321",
     date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     time: "11:00 AM",
     status: "pending",
@@ -89,8 +102,9 @@ const SAMPLE_APPOINTMENTS: Appointment[] = [
     userName: "Prof. Garcia",
   },
   {
-    id: "5",
+    id: "sample-5",
     type: "hr",
+    consultationMode: "in-person",
     date: new Date(Date.now() + 259200000).toISOString().split("T")[0],
     time: "3:00 PM",
     status: "confirmed",
@@ -127,11 +141,23 @@ export default function AdminDashboardPage() {
   }
 
   const handleStatusChange = (appointmentId: string, newStatus: "confirmed" | "cancelled" | "completed") => {
+    // Update local state
     setAppointments((prev) =>
       prev.map((apt) =>
         apt.id === appointmentId ? { ...apt, status: newStatus } : apt
       )
     )
+    
+    // Also update localStorage so the student/faculty dashboard can see the change
+    const storedAppointments = localStorage.getItem("campcon_appointments")
+    if (storedAppointments) {
+      const userAppointments = JSON.parse(storedAppointments)
+      const updatedAppointments = userAppointments.map((apt: Appointment) =>
+        apt.id === appointmentId ? { ...apt, status: newStatus } : apt
+      )
+      localStorage.setItem("campcon_appointments", JSON.stringify(updatedAppointments))
+    }
+    
     setIsDialogOpen(false)
     setSelectedAppointment(null)
   }
@@ -204,6 +230,30 @@ export default function AdminDashboardPage() {
                 {admin.office} Office
               </Badge>
             </div>
+            <Link href="/admin/schedule">
+              <Button variant="outline" size="sm">
+                <Calendar className="mr-2 h-4 w-4" />
+                Schedule Overview
+              </Button>
+            </Link>
+            <Link href="/admin/feedback">
+              <Button variant="outline" size="sm">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Feedback
+              </Button>
+            </Link>
+            <Link href="/admin/reports">
+              <Button variant="outline" size="sm">
+                <FileText className="mr-2 h-4 w-4" />
+                Reports
+              </Button>
+            </Link>
+            <Link href="/admin/messages">
+              <Button variant="outline" size="sm">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Messages
+              </Button>
+            </Link>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
@@ -359,6 +409,16 @@ export default function AdminDashboardPage() {
                             <Clock className="h-3.5 w-3.5" />
                             {appointment.time}
                           </span>
+                          {appointment.consultationMode && (
+                            <span className="flex items-center gap-1">
+                              {appointment.consultationMode === "in-person" ? (
+                                <MapPin className="h-3.5 w-3.5" />
+                              ) : (
+                                <Phone className="h-3.5 w-3.5" />
+                              )}
+                              {appointment.consultationMode === "in-person" ? "In-Person" : "Online"}
+                            </span>
+                          )}
                           {appointment.userEmail && (
                             <span className="flex items-center gap-1">
                               <Mail className="h-3.5 w-3.5" />
@@ -431,6 +491,34 @@ export default function AdminDashboardPage() {
                 <span className="font-medium text-foreground">{selectedAppointment.userName}</span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Service</span>
+                <span className="font-medium text-foreground">
+                  {selectedAppointment.type === "guidance" ? "Guidance Office" : "HR Office"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Mode</span>
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                  {selectedAppointment.consultationMode === "in-person" ? (
+                    <>
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <span>In-Person</span>
+                    </>
+                  ) : (
+                    <>
+                      <Phone className="h-4 w-4 text-accent" />
+                      <span>Online</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              {selectedAppointment.consultationMode === "online" && selectedAppointment.contactNumber && (
+                <div className="flex items-center justify-between border-t border-border/40 pt-3">
+                  <span className="text-muted-foreground">Contact</span>
+                  <span className="font-medium text-foreground">{selectedAppointment.contactNumber}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-border/40 pt-3">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium text-foreground">
                   {new Date(selectedAppointment.date).toLocaleDateString("en-US", {
